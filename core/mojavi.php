@@ -117,7 +117,8 @@ class ExecutionFilter extends Filter
                 {
                     trigger_error('Action requires security but no authorization ' .
                                   'handler has been registered', E_USER_NOTICE);
-                } else if (!$authHandler->execute($controller, $request, $user, $action))
+                }
+                else if (!$authHandler->execute($controller, $request, $user, $action))
                 {
                     return;
                 }
@@ -125,7 +126,8 @@ class ExecutionFilter extends Filter
             if (($action->getRequestMethods() & $method) != $method)
             {
                 $actView = $action->getDefaultView($controller, $request, $user);
-            } else
+            } 
+            else
             {
                 $validManager =& new ValidatorManager;
                 $action->registerValidators($validManager, $controller, $request,
@@ -134,17 +136,22 @@ class ExecutionFilter extends Filter
                     !$action->validate($controller, $request, $user))
                 {
                     $actView = $action->handleError($controller, $request, $user);
-                } else
+
+                }
+                else
                 {
                     $actView = $action->execute($controller, $request, $user);
+
                 }
             }
             if (is_string($actView) || $actView === NULL)
             {
                 $viewMod  = $modName;
-                $viewAct  = $actName;
+                $viewAct  = $actName; # 액션 이름 바꿈..
+                //$viewAct  = "Error";
                 $viewName = $actView;
-            } else if (is_array($actView))
+            }
+            else if (is_array($actView))
             {
                 $viewMod  = $actView[0];
                 $viewAct  = $actView[1];
@@ -155,7 +162,7 @@ class ExecutionFilter extends Filter
                 if (!$controller->viewExists($viewMod, $viewAct, $viewName))
                 {
                     $error = 'Module ' . $viewMod . ' does not contain view ' .
-                             $viewAct . 'View_' . $viewName . ' or the file is ' .
+                             $viewAct . '_' . $viewName . ' or the file is ' .
                              'not readable';
                     trigger_error($error, E_USER_ERROR);
                     exit;
@@ -1177,12 +1184,14 @@ class ValidatorManager
             $required =  $this->validators[$param]['required'];
             if (!$required && ($value == NULL || (is_string($value) && strlen($value) == 0)))
             {
-            } else if ($value == NULL || (is_string($value) && strlen($value) == 0) || (is_array($value) && count($value)))
+            }
+            else if ($value == NULL || (is_string($value) && strlen($value) == 0) || (is_array($value) && count($value)))
             {
                 $message = $this->validators[$param]['message'];
                 $request->setError($param, $message);
                 $success = FALSE;
-            } else if (isset($this->validators[$param]['validators']))
+            }
+            else if (isset($this->validators[$param]['validators']))
             {
                 $error    = NULL;
                 $subCount = count($this->validators[$param]['validators']);

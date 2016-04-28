@@ -68,7 +68,7 @@
    <!--[if (gt IE 9)|!(IE)]><!--> 
    
   <!--<![endif]-->
-
+   <!-- http://www.portnine.com/bootstrap-themes -->
    <div class="navbar navbar-default" role="navigation">
       <div class="navbar-header">
          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
@@ -137,7 +137,7 @@
          </footer>
       </div>
    </div>
-
+   <div class="modal-backdrop fade in"></div>
    <script src="<?php echo $T['STATIC_DIR']?>/js/bootstrap.js"></script>
    <script type="text/javascript">
       $("[rel=tooltip]").tooltip();

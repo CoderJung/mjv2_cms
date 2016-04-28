@@ -11,6 +11,7 @@ final class Base extends Admin
   */
 	function execute (&$controller, &$request, &$user)
   {
+ 
     $data['title']            = $request->getParameter('cf_title');
     $data['admin_email']      = $request->getParameter('cf_admin_email');
     $data['admin_email_name'] = $request->getParameter('cf_admin_email_name');
@@ -38,6 +39,16 @@ final class Base extends Admin
     $request->setAttribute('data',$result->fetch_assoc());
     return VIEW_INDEX;
   }
+
+  function registerValidators (&$validatorManager, &$controller, &$request, &$user)
+  {
+    //$validatorManager->setRequired('cf_title', TRUE, '필수 입니다.');
+  }
+
+  // function handleError (&$controller, &$request, &$user)
+  // { 
+  //   return VIEW_ALERT;
+  // }
 
   private function update($data)
   {
