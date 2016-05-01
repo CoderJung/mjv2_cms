@@ -1,5 +1,6 @@
 <?php
 require_once('Admin.class.php');
+
 /**
  * 게시판설정 액션
  */
@@ -9,20 +10,9 @@ final class Board extends Admin
   * [execute POST 요청시 실해되는 function]
   * @return [const] [View 클래스 파일 불러오는 상수]
   */
-	function execute (&$controller, &$request, &$user)
+	public function execute (&$controller, &$request, &$user)
   {
-    $data['title']            = $request->getParameter('cf_title');
-    $data['admin_email']      = $request->getParameter('cf_admin_email');
-    $data['admin_email_name'] = $request->getParameter('cf_admin_email_name');
-    $data['new_del']          = $request->getParameter('cf_new_del');
-    $data['intercept_ip']     = $request->getParameter('cf_intercept_ip');
-    $data['image_extension']  = $request->getParameter('cf_image_extension');
-    $data['flash_extension']  = $request->getParameter('cf_flash_extension');
-    $data['movie_extension']  = $request->getParameter('cf_movie_extension');
-    $data['file_extension']   = $request->getParameter('cf_file_extension');
-    $data['filter']           = $request->getParameter('cf_filter');
     
-    $this->update($data);
    
 		return $controller->redirect("?mod={$controller->currentModule}&act={$controller->currentAction}");
 	}
@@ -31,7 +21,7 @@ final class Board extends Admin
 	 * [getDefaultView GET 요청시 실행됨]
 	 * @return [const] [View 클래스 파일 불러오는 상수]
 	 */
-	function getDefaultView (&$controller, &$request, &$user)
+	public function getDefaultView (&$controller, &$request, &$user)
   {
     $mode            = $request->getParameter('mode');
 
@@ -50,21 +40,30 @@ final class Board extends Admin
     return VIEW_INDEX;
   }
 
-  function update($data)
+  public function validate(&$controller, &$request, &$user)
   {
-    $sql = "UPDATE dt_config
-            SET cf_title = '{$data['title']}',
-                cf_admin_email = '{$data['admin_email']}',
-                cf_admin_email_name = '{$data['admin_email_name']}',
-                cf_new_del = '{$data['new_del']}',
-                cf_intercept_ip = '{$data['intercept_ip']}',
-                cf_image_extension = '{$data['image_extension']}',
-                cf_flash_extension = '{$data['flash_extension']}',
-                cf_movie_extension = '{$data['movie_extension']}',
-                cf_file_extension  = '{$data['file_extension']}',
-                cf_filter = '{$data['filter']}'
-            ";    
-    $this->Query($sql);
+    return TRUE;
+  }
+
+  public function registerValidators(&$validatorManager,&$controller,&$request,&$user)
+  {
+    $validatorManager->setRequired('bo_id',TRUE,'게시판 아이디는 필수 입니다.');
+    require_once(VALIDATOR_DIR.'RegexValidator.class.php');
+    $validator = new RegexValidator($controller);
+    $criteria = array(
+                    'pattern'         => '/^([A-Za-z0-9_]{1,20})$/',
+                    'match'           => TRUE,
+                    'pattern_error'   => "게시판 TABLE명은 공백없이 영문자, 숫자, _ 만 사용 가능합니다. (20자 이내)"
+                );
+    $validator->initialize($criteria);
+    $validatorManager->register('bo_id', $validator, TRUE);
+
+    $validatorManager->setRequired('bo_subject',TRUE,'게시판 제목은 필수 입니다.');
+  }  
+
+  public function handleError(&$controller, &$request, &$user)
+  {
+    return $this->getDefaultView($controller,$request,$user);
   }
 }
 

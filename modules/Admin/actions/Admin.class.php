@@ -44,8 +44,8 @@ abstract class Admin extends Action
 
   /**
    * [getList 전체]
-   * @param  [string] $table_name [테이블명]
-   * @param  [sql]    $where      [WHERE 조건문]
+   * @param  [string] $table_name [테이블명 !필수]
+   * @param  [sql]    $where      [WHERE 조건문 !필수]
    * @param  [array]  $offset     [Limit 인수]
    * @return [array]              [연관배열]
    */
@@ -73,7 +73,7 @@ abstract class Admin extends Action
 
   /**
    * [Select 셀렉트]
-   * @param [string] $table_name  [테이블명]
+   * @param [string] $table_name  [테이블명 !필수]
    * @param [string] $where       [where 문]
    * @param [array]  $offset      [limit 인수]
    * @param array    $sort        [정렬]
@@ -113,6 +113,24 @@ abstract class Admin extends Action
       $sql .= " LIMIT {$offset[0]},{$offset[1]}";  
     }
     return $this->Query($sql);
+  }
+
+  /**
+   * [update 수정]
+   * @param  [type] $tableName [테이블 명 !필수]
+   * @param  [type] $data      [데이터 배열 !필수]
+   * @param  [type] $where     [sql 조건]
+   */
+  protected function update($tableName,$data,$where)
+  {
+    $sql = "UPDATE {$tableName} SET ";
+    for ($i=0; $i < count($data); $i++) { 
+      list($key,$value) = each($data);
+      if($key=='mod' || $key=='act') continue;
+      $i == (count($data)-1) ? $sql .= "{$key} = '{$value}' " : $sql .= "{$key} = '{$value}',";
+      if(!empty($where)) $sql .= "WHERE {$where}";
+    }
+    $this->Query($sql);
   }
 
   /**

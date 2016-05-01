@@ -1055,7 +1055,7 @@ class User
         {
             return $namespace[$name];
         }
-	$null = NULL;
+	    $null = NULL;
         return $null;
     }
     function getAttributeNames ($namespace = 'org.mojavi')

@@ -32,10 +32,5 @@ class Member extends Admin
     }
     return VIEW_INDEX;
   }
-
-  function update($data)
-  {
-  
-  }
 }
  ?>

@@ -115,10 +115,13 @@
             <p class="stat"><span class="label label-success">27</span> Tasks</p>
             <p class="stat"><span class="label label-danger">15</span> Overdue</p>
          </div> -->
-         <h1 class="page-title" style="float:left;"><?=$T['page_title']?></h1>
+         <h1 class="page-title" style="float:left;">
+            <?=$T['page_title']?>
+            <small><?=$T['sub_title']?></small>
+         </h1>
          <ul class="breadcrumb" style="float:right;">
             <li><a href="index.html">Home</a> </li>
-            <li class="active"><?=$T['action_name']?> Config</li>
+            <li class="active"><?=$T['action_name']?></li>
 
          </ul>
          <div style="clear:both;"></div>
@@ -137,7 +140,7 @@
          </footer>
       </div>
    </div>
-   <div class="modal-backdrop fade in"></div>
+   
    <script src="<?php echo $T['STATIC_DIR']?>/js/bootstrap.js"></script>
    <script type="text/javascript">
       $("[rel=tooltip]").tooltip();
@@ -145,5 +148,7 @@
          $('.demo-cancel-click').click(function(){return false;});
       });
    </script>
-</body>
+   <?=$T['modal']?>
+   
+   </body>
 </html>

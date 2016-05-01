@@ -12,7 +12,12 @@ class Board_index extends Admin_index
       
       // 혹시 더 필요한 공용 변수 추가 할땐...
       $this->common_var['page_title'] = '게시판관리';
-
+      switch ($request->getAttribute('mode')) {
+         case 'add':
+            $this->common_var['sub_title'] = '[ 추가 ]';
+            break;
+      }
+      
       parent::execute($controller, $request, $user);
       return $this->renderer;
    }

@@ -154,15 +154,14 @@ define('URL_FORMAT', 1);
  */
 define('USE_SESSIONS', TRUE);
 
-
+/*
+ * DB info
+ */
 define(DBHOST, 'localhost');
 define(DBUSER, 'root');
 define(DBPASS, '');
 define(DB, 'test');
 
-// $db['host'] 				= 'localhost';
-// $db['user'] 				= 'root';
-// $db['password'] 			= '1234';
-// $db['db'] 					= 'mojavi2';
-// $sconfig['crc32_check'] 	= TRUE;
+
+
 ?>
