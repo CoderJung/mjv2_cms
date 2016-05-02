@@ -1544,7 +1544,7 @@ class Controller
         {
             $view =& $modView;
         }
-	$tmp_view = &new $view;
+	    $tmp_view = &new $view;
         return $tmp_view;
     }
     function mapGlobalFilters (&$filterChain)

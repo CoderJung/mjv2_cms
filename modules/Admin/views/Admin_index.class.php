@@ -26,8 +26,13 @@ class Admin_index extends View
         // 현재 액션 url
         $Body->setAttribute('current_url',$controller->mojavi['current_action_path']);     
         
+        
         /** 모달 렌덜러 **/
-        $errors = implode('<br>', $request->getErrors());
+        $errors = "<ol>";
+        foreach ($request->getErrors() as $key => $value) {
+            $errors .= "<li>".$value."</li>";
+        }
+        $errors .= "</ol>";
         $Modal = new Renderer;
         $Modal->setMode(2);
         $Modal->setTemplate('modal.tpl');

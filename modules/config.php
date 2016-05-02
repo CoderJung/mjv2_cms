@@ -161,6 +161,18 @@ define(DBHOST, 'localhost');
 define(DBUSER, 'root');
 define(DBPASS, '');
 define(DB, 'test');
+define(DB_PREFIX, 'dt_');
+
+/*
+ * 퍼미션
+ */
+define('DIR_PERMISSION',  0755); // 디렉토리 생성시 퍼미션
+define('FILE_PERMISSION', 0644); // 파일 생성시 퍼미션
+
+/*
+ * 기타 폴더 경로
+ */
+define('DATA_DIR', BASE_DIR . 'data/');
 
 
 

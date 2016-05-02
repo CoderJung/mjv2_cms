@@ -3,7 +3,7 @@
       <div class="modal-content">
          <div class="modal-header">
             <button type="button" data-dismiss="modal" aria-hidden="true" class="close">×</button>
-            <h3 id="myModalLabel" class="modal-title">ERROR!!!</h3>
+            <h2 id="myModalLabel" class="modal-title text-danger"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> ERROR!!!</h2>
          </div>
          <div class="modal-body text-danger"><?=$T['errors']?></div>
          <div class="modal-footer">
@@ -15,4 +15,7 @@
 
 <script type="text/javascript">
    $('#myModal').modal('show');
+   $('#myModal').on('hide.bs.modal',function(){
+    window.history.back();
+  })
 </script>

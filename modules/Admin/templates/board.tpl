@@ -1,4 +1,4 @@
-<?php if (empty($T['mode'])) :?>
+<?php if ($T['mode']!='add') :?>
 <p>
 	<a class="btn btn-default btn-lg" href="<?=$T['current_url']?>&amp;mode=add" role="button">생성</a>
 </p>	
@@ -30,10 +30,10 @@
 	<div class="form-group">
 		<label class="col-sm-2 col-lg-2 control-label">게시판 유형</label>
 		<div class="col-sm-4">
-			<select name="bo_use_secret" id="bo_use_secret" class="form-control">
+			<select name="bo_type" id="bo_use_secret" class="form-control">
 				<option selected="selected" value="0">일반</option>
 				<option value="1">갤러리</option>
-       	</select>
+       		</select>
 		</div>
 	</div>
 	<div class="form-group">
@@ -49,7 +49,7 @@
 		</div>
 		<div class="col-sm-2 checkbox">
 			<label>
-				<input type="checkbox" name="bo_use_category">사용하기
+				<input type="checkbox" name="bo_use_category" value="1">사용하기
 			</label>
 		</div>
 		<div class="col-sm-offset-2 col-sm-10">
@@ -134,23 +134,51 @@
 </form>
 <?php else :?>
 <table class="table table-bordered">
+	<colgroup>
+		<col width="100">
+		<col width="">
+		<col width="60">
+		<col width="75">
+		<col width="115">
+	</colgroup>
 	<thead>
 		<tr class="active">
 			<th>게시판ID</th>
 			<th>게시판제목</th>
 			<th>유형</th>
-			<th>비밀글 사용</th>
+			<th>비밀글</th>
 			<th>관리</th>
 		</tr>
 	</thead>
 	<tbody>
+	<?php foreach ($T['data'] as $v) : ?>
 		<tr>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
+			<td><?=$v['bo_id']?></td>
+			<td><?=$v['bo_subject']?></td>
+			<td>
+				<?php if ($v['bo_type']==0) : ?>
+					일반
+				<?php else :?>
+					갤러리
+				<?php endif?>
+			</td>
+			<td>
+				<?php if ($v['bo_use_secret']==0) : ?>
+					사용안함
+				<?php elseif ($v['bo_use_secret']==1) :?>
+					체크박스
+				<?php else :?>
+					무조건
+				<?php endif?>
+			</td>
+			<td>
+				<div class="btn-group btn-group-xs" role="group">
+					<a class="btn btn-info"><i class="fa fa-pencil"></i> 수정</a>
+					<a class="btn btn-danger"><i class="fa fa-trash-o"></i> 삭제</a>
+				</div>
+			</td>
 		</tr>
+	<?php endforeach ?>
 	</tbody>
 </table>
 <?php endif ?>

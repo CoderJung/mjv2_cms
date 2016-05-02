@@ -13,7 +13,7 @@ final class Base extends Admin
   {
     $data = $request->getParameters();
 
-    $this->update('dt_config',$data);
+    $this->Update('dt_config',$data);
    
 		return $controller->redirect("?mod={$controller->currentModule}&act={$controller->currentAction}");
 	}
@@ -29,22 +29,12 @@ final class Base extends Admin
     $request->setAttribute('data',$result->fetch_assoc());
     return VIEW_INDEX;
   }
-
-  public function validate(&$controller, &$request, &$user)
-  {
-    return TRUE;
-  }
-
+  
   public function registerValidators(&$validatorManager,&$controller,&$request,&$user)
   {
     $validatorManager->setRequired('cf_title',TRUE,'홈페이지 제목은 필수 입니다.');
     $validatorManager->setRequired('cf_admin_email',TRUE,'관리자 메일주소는 필수 입니다.');
   }  
-
-  public function handleError(&$controller, &$request, &$user)
-  {
-    return $this->getDefaultView($controller,$request,$user);
-  }
 }
 
 

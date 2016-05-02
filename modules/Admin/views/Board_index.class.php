@@ -4,9 +4,12 @@ class Board_index extends Admin_index
 {
    function & execute (&$controller, &$request, &$user)
    {	
-   	  /* 데이터 하고 템플릿 파일은 필수라고 봐야됨. */
+      
+   	/* 데이터 하고 템플릿 파일은 필수라고 봐야됨. */
       // body 데이터
       $this->body_var['mode'] = $request->getAttribute('mode');
+      $this->body_var['data'] = $request->getAttribute('data');
+      
       // body 템플릿 파일
       $this->body_tpl = 'board.tpl';
       
