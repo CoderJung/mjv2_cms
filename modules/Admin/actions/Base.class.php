@@ -12,7 +12,7 @@ final class Base extends Admin
 	public function execute (&$controller, &$request, &$user)
   {
     $data = $request->getParameters();
-
+    // 수정 쿼리
     $this->Update('dt_config',$data);
    
 		return $controller->redirect("?mod={$controller->currentModule}&act={$controller->currentAction}");
@@ -24,9 +24,10 @@ final class Base extends Admin
 	 */
 	public function getDefaultView (&$controller, &$request, &$user)
   {
-    
-    $result = $this->Select('dt_config');
-    $request->setAttribute('data',$result->fetch_assoc());
+    // dt_config 한행 불러오기
+    $row = $this->Get_Row('dt_config');
+
+    $request->setAttribute('data',$row);
     return VIEW_INDEX;
   }
   

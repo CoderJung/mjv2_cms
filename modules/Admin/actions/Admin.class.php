@@ -4,16 +4,13 @@
  */
 abstract class Admin extends Action
 {
-  public $DB;
+  	public $DB;
 	public function __construct ()
   {
+    
     // DB setting
-    $this->DB = new MySqli(DBHOST,DBUSER,DBPASS,DB);
-    $this->DB->set_charset("utf8");
-    if($this->DB->connect_error) {
-      printf("Connect failed: %s\n", $this->DB->connect_error);
-      exit();
-    }    
+    $this->DB = $this->connect(DBUSER,DBPASS,DB,DBHOST);
+
     // Level setting
     $Level = $_SESSION['secure']['Level'];
     if(array_key_exists(1,$Level) || array_key_exists(2,$Level))
@@ -26,6 +23,16 @@ abstract class Admin extends Action
     }
   }
 
+  public static function connect($user,$pw,$db,$host)
+  { 
+    $mysqli = new mysqli($host,$user,$pw,$db);
+    $mysqli->set_charset("utf8");
+    if($mysqli->connect_error) {
+      printf("Connect failed: %s\n", $mysqli->connect_error);
+      exit();
+    }
+    return $mysqli;
+  }
 
   /**
    * [Query mysqli query + error]
@@ -33,14 +40,17 @@ abstract class Admin extends Action
    */
   protected function Query($sql)
   {
-    if(!$this->DB->query($sql))
+    if(!empty($sql))
     {
-      die("SQL Error : ".$this->DB->error);
-    }
-    else
-    {
-      return $this->DB->query($sql);
-    }
+      if(!$this->DB->query($sql))
+      {
+        die("SQL Error : ".$this->DB->error);
+      }
+      else
+      {
+        return $this->DB->query($sql);
+      }
+    }    
   }
 
   /**
@@ -96,12 +106,11 @@ abstract class Admin extends Action
         } 
       }
       $sql .= " ORDER BY {$sort_str}";
-    }
-    
+    }    
 
     $result = $this->Query($sql);
 
-    while($row = $result->fetch_assoc())
+    while(!!$row = $result->fetch_assoc())
     {
       $list[] = $row;
     }
@@ -109,14 +118,14 @@ abstract class Admin extends Action
   }
 
   /**
-   * [Select 셀렉트]
+   * [Get_Row 한행 불러오기]
    * @param [string] $table_name  [테이블명 !필수]
    * @param [string] $where       [where 문]
-   * @param [array]  $offset      [limit 인수]
    * @param array    $sort        [정렬]
-   * @param array    $columns     [컬럼명]
+   * @param array    $columns     [검색할 필드]
+   * @return [resource]           [Mysql 리소스]
    */
-  protected function Select($table_name,$where,$offset,$sort,$columns)
+  protected function Get_Row($table_name,$where,$sort,$columns)
   {
     if(count($columns)>0 && is_array($columns))
     {
@@ -159,11 +168,23 @@ abstract class Admin extends Action
       $sql .= " ORDER BY {$sort_str}";
     }
 
-    if(!empty($offset))
-    {
-      $sql .= " LIMIT {$offset[0]},{$offset[1]}";  
-    }
-    return $this->Query($sql);
+    $sql .= " LIMIT 1";
+    $result = $this->Query($sql);
+    
+    return $result->fetch_assoc();
+  }
+
+  protected function Get_One($table_name,$columns,$where)
+  {
+    if(!empty($columns)) $sql = "SELECT {$columns} FROM {$table_name}";
+    if(!empty($where)) $sql .= " WHERE {$where}";
+    $sql .= " LIMIT 1";
+
+    $result = $this->Query($sql);
+    $finfo = $result->fetch_field();
+    $One = $result->fetch_assoc();
+    
+    return $One[$finfo->name];
   }
 
   /**
@@ -176,9 +197,10 @@ abstract class Admin extends Action
     $sql = "INSERT INTO {$tableName} SET ";
     for ($i=0; $i < count($data); $i++) { 
       list($key,$value) = each($data);
-      if($key=='mod' || $key=='act' || $key=='mode') continue;
+      if($key=='mod' || $key=='act' || $key=='mode' || $key=='mode') continue;
       $i == (count($data)-1) ? $sql .= "{$key} = '{$value}' " : $sql .= "{$key} = '{$value}',";
     }
+
     $this->Query($sql);
   }
 
@@ -193,18 +215,20 @@ abstract class Admin extends Action
     $sql = "UPDATE {$tableName} SET ";
     for ($i=0; $i < count($data); $i++) { 
       list($key,$value) = each($data);
-      if($key=='mod' || $key=='act' || $key=='mode') continue;
-      $i == (count($data)-1) ? $sql .= "{$key} = '{$value}' " : $sql .= "{$key} = '{$value}',";
-      if(!empty($where)) $sql .= "WHERE {$where}";
+      if($key=='mod' || $key=='act' || $key=='mode' || $key=='id' || $key=='bo_id') continue;
+      $i == (count($data)-1) ? $sql .= "{$key} = '{$value}' " : $sql .= "{$key} = '{$value}',";      
     }
+    if(!empty($where)) $sql .= "WHERE {$where}";
+
     $this->Query($sql);
   }
 
   /**
    * [Close mysqli close]
    */
-  public function __destruct()
+  public function DB_Close()
   {
+    mysqli_free_result();
     $this->DB->close();
   }
 

@@ -12,45 +12,66 @@ final class Board extends Admin
   */
 	public function execute (&$controller, &$request, &$user)
   {
+    // 모드
+    $mode = $request->getParameter('mode');
+
     // 데이타 받기
     $data            = $request->getParameters();
-    // 게시판 폴더 경로
-    $board_path = DATA_DIR.'file/'.$data['bo_id'];
-    // 폴더 생성 및 권한 설정
-    mkdir($board_path,DIR_PERMISSION);
-    chmod($board_path,DIR_PERMISSION);
-    // index.html 만듬... 및 권한 설정
-    $file = $board_path . '/index.html';
-    file_put_contents($file,'',FILE_APPEND|LOCK_EX);
-    chmod($file, FILE_PERMISSION);
 
-    // dt_board 테이블에서 추가 되는 게시판 아이디가 있는지 ... 검색
+    // dt_board 테이블에서 해당 아이디로 된 게시판 아이디가 있는지 ... 검색
     $table_name = "dt_board";
     $where = "bo_id = '{$data['bo_id']}'";
-    $columns='count(*) as cnt';
-    $result = $this->Select($table_name,$where,NULL,NULL,$columns);
-    // 있으면 경고창!
-    if($result->fetch_assoc()['cnt'])
-    {
-      $param = 'bo_id';
-      $message = $data['bo_id'].'은(는) 이미 존재하는 TABLE 입니다.';
-      $request->setError($param, $message);
-      return $this->handleError($controller,$request,$user);
-    }
-    // 없으면 dt_board insert
-    $this->Insert($table_name,$data);
-    
-    // 새 게시판 sql 불러오기
-    $sql_file = BASE_DIR.'modules/'.$controller->currentModule.'/sql/sql_write.sql';
-    $sql = file_get_contents($sql_file);
-    // 테이블명 변경
-    $source = array('/__TABLE_NAME__/', '/;/');
-    $target = array(DB_PREFIX.$data['bo_id'], '');
-    $sql = preg_replace($source, $target, $sql);
-    
-    // 쿼리 실행
-    $this->Query($sql);
-    
+    $columns ='count(*) as cnt';
+    $row_one = $this->Get_One($table_name,$columns,$where);
+
+    switch ($mode) {
+      case 'add':
+        // 게시판 폴더 경로
+        $board_path = DATA_DIR.'file/'.$data['bo_id'];
+        // 폴더 생성 및 권한 설정
+        mkdir($board_path,DIR_PERMISSION);
+        chmod($board_path,DIR_PERMISSION);
+        // index.html 만듬... 및 권한 설정
+        $file = $board_path . '/index.html';
+        file_put_contents($file,'',FILE_APPEND|LOCK_EX);
+        chmod($file, FILE_PERMISSION);
+
+        // 있으면 경고창!
+        if($row_one)
+        {
+          $param = 'bo_id';
+          $message = $data['bo_id'].'은(는) 이미 존재하는 TABLE 입니다.';
+          $request->setError($param, $message);
+          return $this->handleError($controller,$request,$user);
+        }
+        // 없으면 dt_board insert
+        $this->Insert($table_name,$data);
+        
+        // 새 게시판 sql 불러오기
+        $sql_file = BASE_DIR.'modules/'.$controller->currentModule.'/sql/sql_write.sql';
+        $sql = file_get_contents($sql_file);
+        // 테이블명 변경
+        $source = array('/__TABLE_NAME__/', '/;/');
+        $target = array(DB_PREFIX.$data['bo_id'], '');
+        $sql = preg_replace($source, $target, $sql);        
+        // 쿼리 실행
+        $this->Query($sql);
+        break;
+
+      case 'modify':
+        // 없으면 경고창!
+        if(!$row_one)
+        {
+          $param = 'bo_id';
+          $message = $data['bo_id'].'은(는) 존재하지 않은 TABLE 입니다.';
+          $request->setError($param, $message);
+          return $this->handleError($controller,$request,$user);
+        }
+        // 없으면 dt_board Update
+        $where = "bo_id='{$data['bo_id']}'";
+        $this->Update($table_name,$data,$where);
+        break;
+    } 
     // 해당 액셕으로 리다이렉트~ go!
 		return $controller->redirect("?mod={$controller->currentModule}&act={$controller->currentAction}");
 	}
@@ -61,24 +82,54 @@ final class Board extends Admin
 	 */
 	public function getDefaultView (&$controller, &$request, &$user)
   {
-    $mode            = $request->getParameter('mode');
+    $mode = $request->getParameter('mode');
     $request->setAttribute('mode',$mode);
+    if($request->getParameter('id')) $id = $request->getParameter('id');
     switch ($mode) {
-      case 'add':
-        # code...
+      case 'modify':
+    if(!empty($id))
+        {
+          $table_name = "dt_board";
+          $columns = "count(*) as cnt";
+          $where = "bo_id = '{$id}'";
+          $row_one = $this->Get_One($table_name,$columns,$where);
+          if(!$row_one)
+          {
+            $param = "id";
+            $message = "잘못된 접근 입니다.";
+            $request->setError($param, $message);
+          }
+          $Row = $this->Get_Row($table_name,$where);
+          $request->setAttribute('Row',$Row);
+        }        
         break;
-      
+      case 'delete':
+    	if(!empty($id))
+        {
+          $table_name = "dt_board";
+          $columns = "count(*) as cnt";
+          $where = "bo_id = '{$id}'";
+          $row_one = $this->Get_One($table_name,$columns,$where);
+          if(!$row_one)
+          {
+            $param = "id";
+            $message = "잘못된 접근 입니다.";
+            $request->setError($param, $message);
+          }
+          $board_path = DATA_DIR.'file/'.$data['bo_id'];
+        }
+      	break;      
       default:
-        $sort = ["bo_id DESC"];
-        $columns = ["bo_id","bo_type","bo_use_secret","bo_subject"];
+        $sort = array("bo_id DESC");
+        $columns = array("bo_id","bo_type","bo_use_secret","bo_subject");
         $data = $this->Get_All('dt_board',$sort,NULL,NULL,$columns);
         $request->setAttribute('data',$data);
         break;
     }
-
+    $this->DB_Close();
     return VIEW_INDEX;
   }
-
+  
   public function registerValidators(&$validatorManager,&$controller,&$request,&$user)
   {
     $validatorManager->setRequired('bo_id',TRUE,'게시판 아이디는 필수 입니다.');
